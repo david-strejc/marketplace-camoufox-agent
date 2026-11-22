@@ -182,7 +182,7 @@ class Collection(StrictModel):
 class Webhook(StrictModel):
     enabled: bool = False
     url: str = "https://example.com/marketplace/leads"
-    secret_env: str = "WEBHOOK_SECRET"
+    secret_env: str = Field(default="WEBHOOK_SECRET")
     timeout_seconds: float = Field(default=15, gt=0, le=120)
     max_attempts: int = Field(default=4, ge=1, le=10)
 

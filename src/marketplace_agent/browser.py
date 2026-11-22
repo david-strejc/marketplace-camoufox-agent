@@ -10,7 +10,8 @@ from urllib.parse import urlparse
 
 from filelock import FileLock
 from playwright.async_api import Error as PlaywrightError
-from playwright.async_api import Locator, Page, TimeoutError as PlaywrightTimeoutError
+from playwright.async_api import Locator, Page
+from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
 from marketplace_agent.agent import SelectorAgent
 from marketplace_agent.config import Config, Profile, Selector

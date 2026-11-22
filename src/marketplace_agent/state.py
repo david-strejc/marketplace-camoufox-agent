@@ -272,7 +272,18 @@ class State:
                 ]
             )
             for row in rows:
-                writer.writerow([row[name] for name in ("id", "observed_at", "profile_id", "source", "phone", "sender", "source_url", "message", "delivered_at")])
+                columns = (
+                    "id",
+                    "observed_at",
+                    "profile_id",
+                    "source",
+                    "phone",
+                    "sender",
+                    "source_url",
+                    "message",
+                    "delivered_at",
+                )
+                writer.writerow([row[name] for name in columns])
         return len(rows)
 
     def add_selector_proposal(

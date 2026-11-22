@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import logging
-import random
-from datetime import UTC, date, datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 from marketplace_agent.browser import PublishUncertain, publish_listing
@@ -51,7 +51,12 @@ def _slots(config: Config, profile: Profile, day: date, count: int) -> list[date
         while current <= end:
             candidates.append(current)
             current += timedelta(minutes=1)
-    random.Random(f"{day.isoformat()}:{profile.id}").shuffle(candidates)
+    seed = f"{day.isoformat()}:{profile.id}"
+    candidates.sort(
+        key=lambda candidate: hashlib.sha256(
+            f"{seed}:{candidate.isoformat()}".encode()
+        ).digest()
+    )
     selected: list[datetime] = []
     gap = timedelta(minutes=config.runtime.minimum_gap_minutes)
     for candidate in candidates:
