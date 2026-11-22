@@ -10,7 +10,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from marketplace_agent.config import Agent
 
-
 ModelT = TypeVar("ModelT", bound=BaseModel)
 
 
