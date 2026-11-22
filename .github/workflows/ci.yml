@@ -19,5 +19,5 @@ jobs:
       - run: uv run ruff check src
       - run: uv run mypy
       - run: uv build
-      - run: uv run marketplace-agent validate --config config.example.yaml
+      - run: uv run marketplace-agent --config config.example.yaml validate
       - run: uv run marketplace-agent --help
