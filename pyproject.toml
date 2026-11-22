@@ -21,6 +21,7 @@ dependencies = [
 dev = [
     "mypy>=1.13,<2",
     "ruff>=0.8,<1",
+    "types-PyYAML>=6,<7",
 ]
 
 [project.scripts]
@@ -46,7 +47,7 @@ ignore = ["S104"]
 "src/marketplace_agent/state.py" = ["S608"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 strict = true
 ignore_missing_imports = true
 packages = ["marketplace_agent"]
