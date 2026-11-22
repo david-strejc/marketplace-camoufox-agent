@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+dist/
+build/
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.env
+.env.*
+!.env.example
+*.log
+config.yaml
+config.local.yaml
+
+# Local identities, personal data and generated media
+data/
+artifacts/
+profiles/
+*.lock
+*.xlsx
+!data/*.example.xlsx

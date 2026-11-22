@@ -1,0 +1,121 @@
+runtime:
+  # Two switches are required for real operations: set this true AND pass --live.
+  live: false
+  timezone: Europe/Prague
+  locale: cs-CZ
+  operating_system: windows
+  headless: false
+  daily_limit_per_profile: 3
+  minimum_gap_minutes: 45
+  max_concurrency: 2
+  navigation_timeout_ms: 45000
+  action_timeout_ms: 15000
+  prime_time:
+    - { start: "11:30", end: "14:00" }
+    - { start: "17:00", end: "21:00" }
+  database_path: data/marketplace.db
+  profiles_dir: profiles
+  artifacts_dir: artifacts
+
+content:
+  workbook: data/listings.xlsx
+  listings_sheet: listings
+  cities_sheet: cities
+  responses_sheet: responses
+  default_category: Nábytek
+  phone_region: CZ
+
+facebook:
+  create_item_url: https://www.facebook.com/marketplace/create/item
+  messenger_url: https://www.facebook.com/messages/t
+  selectors:
+    title:
+      - { role: textbox, name: Název }
+      - { role: textbox, name: Title }
+    price:
+      - { role: textbox, name: Cena }
+      - { role: textbox, name: Price }
+    description:
+      - { role: textbox, name: Popis }
+      - { role: textbox, name: Description }
+    category:
+      - { role: combobox, name: Kategorie }
+      - { role: combobox, name: Category }
+    city:
+      - { role: combobox, name: Přidat město }
+      - { role: combobox, name: Location }
+    photos:
+      - { css: 'input[type="file"][accept*="image"]' }
+    next:
+      - { role: button, name: Další }
+      - { role: button, name: Next }
+    publish:
+      - { role: button, name: Zveřejnit }
+      - { role: button, name: Publish }
+    # Calibrate these on your account before enabling collection. The message
+    # selector must match INCOMING messages only, never your own replies.
+    # messenger_threads:
+    #   - { css: '[role="listitem"] a[href*="/messages/t/"]' }
+    # messenger_messages:
+    #   - { css: 'YOUR_INCOMING_MESSAGE_SELECTOR' }
+    # messenger_sender:
+    #   - { css: 'YOUR_SENDER_SELECTOR' }
+    # group_items:
+    #   - { css: 'YOUR_CONSENTED_GROUP_POST_COMMENT_SELECTOR' }
+    # group_sender:
+    #   - { css: 'YOUR_COMMENT_AUTHOR_SELECTOR' }
+
+collection:
+  enabled: false
+  max_threads_per_profile: 50
+  max_items_per_surface: 100
+  # Off by default: webhook and CSV contain only the number, sender, source and timestamp.
+  store_message_text: false
+
+webhook:
+  enabled: false
+  url: https://example.com/marketplace/leads
+  secret_env: WEBHOOK_SECRET
+  timeout_seconds: 15
+  max_attempts: 4
+
+agent:
+  enabled: false
+  base_url: https://api.openai.com/v1
+  api_key_env: OPENAI_API_KEY
+  model: gpt-4o-mini
+  timeout_seconds: 30
+  max_candidates: 3
+
+# One direct connection and six independent static proxy endpoints. Replace the
+# loopback examples with your own endpoints. Never commit real credentials.
+profiles:
+  - { id: home, enabled: true }
+  - id: cz-01
+    enabled: true
+    proxy: { server: "http://127.0.0.1:8101" }
+  - id: cz-02
+    enabled: true
+    proxy: { server: "http://127.0.0.1:8102" }
+  - id: cz-03
+    enabled: true
+    proxy: { server: "http://127.0.0.1:8103" }
+  - id: cz-04
+    enabled: true
+    proxy: { server: "http://127.0.0.1:8104" }
+  - id: cz-05
+    enabled: true
+    proxy: { server: "http://127.0.0.1:8105" }
+  - id: cz-06
+    enabled: true
+    proxy: { server: "http://127.0.0.1:8106" }
+
+# Authenticated proxy example:
+# proxy:
+#   server: "${FB_PROXY_CZ_01_SERVER}"
+#   username: "${FB_PROXY_CZ_01_USERNAME}"
+#   password: "${FB_PROXY_CZ_01_PASSWORD}"
+#
+# Group intake is limited to explicitly configured post URLs:
+# group_post_urls:
+#   - https://www.facebook.com/groups/123456789/posts/1234567890123/
