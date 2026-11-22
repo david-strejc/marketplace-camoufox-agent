@@ -39,6 +39,7 @@ class PublishUncertain(BrowserError):
 @asynccontextmanager
 async def open_profile(config: Config, profile: Profile) -> AsyncIterator[Page]:
     from camoufox.async_api import AsyncCamoufox
+    from playwright.async_api import BrowserContext
 
     profile_dir = config.runtime.profiles_dir / profile.id
     profile_dir.mkdir(parents=True, exist_ok=True)
@@ -57,7 +58,9 @@ async def open_profile(config: Config, profile: Profile) -> AsyncIterator[Page]:
         options["proxy"] = profile.proxy.playwright()
         options["geoip"] = True
     with lock:
-        async with AsyncCamoufox(**options) as context:  # type: ignore[arg-type]
+        async with AsyncCamoufox(**options) as context:  # type: ignore[no-untyped-call]
+            if not isinstance(context, BrowserContext):
+                raise BrowserError("Camoufox did not return a persistent browser context")
             context.set_default_timeout(config.runtime.action_timeout_ms)
             context.set_default_navigation_timeout(config.runtime.navigation_timeout_ms)
             page = context.pages[0] if context.pages else await context.new_page()
@@ -270,9 +273,9 @@ async def _find(
         except PlaywrightTimeoutError:
             continue
     if config.agent.enabled:
-        locator = await _heal(config, page, profile_id, target, state)
-        if locator is not None:
-            return locator
+        healed = await _heal(config, page, profile_id, target, state)
+        if healed is not None:
+            return healed
     await _capture(page, config.runtime.artifacts_dir, profile_id, target)
     raise SelectorFailure(f"no unique working selector for {target}")
 

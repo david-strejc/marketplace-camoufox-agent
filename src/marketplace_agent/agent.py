@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any
+from typing import Any, TypeVar, cast
 
 import httpx
 from playwright.async_api import Page
 from pydantic import BaseModel, ConfigDict, Field
 
 from marketplace_agent.config import Agent
+
+
+ModelT = TypeVar("ModelT", bound=BaseModel)
 
 
 class Candidate(BaseModel):
@@ -95,22 +98,25 @@ class SelectorAgent:
         )
 
     async def _interactive_elements(self, page: Page) -> list[dict[str, str]]:
-        return await page.locator(
-            "button, input, textarea, select, [role=button], [role=textbox], [role=combobox]"
-        ).evaluate_all(
-            """elements => elements.slice(0, 150).map(element => {
-                const allowed = ['role', 'aria-label', 'name', 'type', 'id', 'data-testid',
-                    'placeholder', 'accept'];
-                const result = {tag: element.tagName.toLowerCase()};
-                for (const name of allowed) {
-                    const value = element.getAttribute(name);
-                    if (value) result[name] = value.slice(0, 160);
-                }
-                if (!element.matches('input, textarea')) {
-                    result.text = (element.innerText || '').slice(0, 160);
-                }
-                return result;
-            })"""
+        return cast(
+            list[dict[str, str]],
+            await page.locator(
+                "button, input, textarea, select, [role=button], [role=textbox], [role=combobox]"
+            ).evaluate_all(
+                """elements => elements.slice(0, 150).map(element => {
+                    const allowed = ['role', 'aria-label', 'name', 'type', 'id', 'data-testid',
+                        'placeholder', 'accept'];
+                    const result = {tag: element.tagName.toLowerCase()};
+                    for (const name of allowed) {
+                        const value = element.getAttribute(name);
+                        if (value) result[name] = value.slice(0, 160);
+                    }
+                    if (!element.matches('input, textarea')) {
+                        result.text = (element.innerText || '').slice(0, 160);
+                    }
+                    return result;
+                })"""
+            ),
         )
 
     async def _ask(
@@ -119,8 +125,8 @@ class SelectorAgent:
         schema: dict[str, Any],
         instructions: str,
         data: dict[str, Any],
-        model_type: type[RepairProposal] | type[Optimization],
-    ) -> Any:
+        model_type: type[ModelT],
+    ) -> ModelT:
         key = os.environ.get(self.config.api_key_env)
         if not key:
             raise ValueError(f"required environment variable is not set: {self.config.api_key_env}")

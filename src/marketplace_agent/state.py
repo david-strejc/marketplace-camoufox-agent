@@ -6,7 +6,7 @@ import sqlite3
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, cast
 
 from marketplace_agent.models import Lead
 
@@ -102,7 +102,9 @@ class State:
             (profile_id, listing_id, scheduled_for.isoformat(), self._now()),
         )
         self.db.commit()
-        return int(cursor.lastrowid)
+        if cursor.lastrowid is None:
+            raise RuntimeError("SQLite did not return a job id")
+        return cursor.lastrowid
 
     def jobs_for_day(self, start: datetime, end: datetime) -> list[dict[str, Any]]:
         rows = self.db.execute(
@@ -222,7 +224,7 @@ class State:
             id=int(row["id"]),
             lead=Lead(
                 profile_id=str(row["profile_id"]),
-                source=str(row["source"]),
+                source=cast(Literal["messenger", "group"], str(row["source"])),
                 source_url=str(row["source_url"]),
                 source_key=str(row["source_key"]),
                 phone=str(row["phone"]),

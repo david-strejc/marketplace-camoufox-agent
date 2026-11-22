@@ -143,7 +143,7 @@ async def _dispatch(args: argparse.Namespace, config: Config) -> Any:
             end = start.replace(hour=23, minute=59, second=59, microsecond=999999)
             return {"created": created, "jobs": state.jobs_for_day(start, end)}
         if args.command == "run":
-            live = _live(config, live_requested=args.live)
+            live = _live(config, requested=args.live)
             if args.watch:
                 if not live:
                     raise ValueError("--watch requires --live and runtime.live: true")
